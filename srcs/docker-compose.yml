@@ -1,0 +1,59 @@
+services:
+  nginx:
+    build: requirements/nginx/.
+    container_name: nginx
+    networks:
+      - frontend
+    ports:
+      - "443:9000"
+  wordpress:
+    build: requirements/wordpress/.
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    container_name: wp
+    volumes:
+     - WordPress:/var/www/html/wp-content
+    networks:
+     - frontend
+     - backend
+    restart: always
+    env_file: .env
+    environment:
+      - PHP_MEMORY_LIMIT=-1
+      - WORDPRESS_DB_HOST=$MYSQL_USER
+      - WORDPRESS_DB_USER=$MYSQL_PASSWORD
+      - WORDPRESS_DB_NAME=wordpress
+    ports:
+     - "9000:3306"
+  mariadb:
+    build: requirements/mariadb/.
+    container_name: mariadb
+    volumes:
+      - DB:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "3306:9000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass     
+
+networks:
+  frontend:
+    driver: bridge
+    driver_opts:
+        com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+  backend:
+    name: hive-network
+    external: true
+
+volumes:
+    WordPress:
+    DB:
