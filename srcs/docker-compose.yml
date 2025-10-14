@@ -4,33 +4,23 @@ services:
     container_name: nginx
     networks:
       - frontend
+    environment:
+      - "DOMAIN=${DOMAIN}"
     ports:
       - "443:9000"
-  wordpress:
-    build: requirements/wordpress/.
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    container_name: wp
-    volumes:
-     - WordPress:/var/www/html/wp-content
-    networks:
-     - frontend
-     - backend
     restart: always
-    env_file: .env
-    environment:
-      - PHP_MEMORY_LIMIT=-1
-      - WORDPRESS_DB_HOST=$MYSQL_USER
-      - WORDPRESS_DB_USER=$MYSQL_PASSWORD
-      - WORDPRESS_DB_NAME=wordpress
-    ports:
-     - "9000:3306"
+    secrets:
+      - source: server-certificate
+        target: server.cert
+        uid: "103"
+        gid: "103"
+        mode: 0o440
+
   mariadb:
     build: requirements/mariadb/.
     container_name: mariadb
     volumes:
-      - DB:/var/lib/mysql
+      - db:/var/lib/mysql
     networks:
       - backend
     ports:
@@ -43,17 +33,56 @@ services:
       timeout: 5s
       retries: 3
     environment:
-      MARIADB_ROOT_PASSWORD: rootpass     
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_root_password
+      - db_password
+
+  wordpress:
+    build: requirements/wordpress/.
+    depends_on:
+      mariadb:
+        condition: service_healthy
+        restart: true
+    container_name: wp
+    volumes:
+      - wordpress:/var/www/html/wp-content
+    networks:
+      - frontend
+      - backend
+    restart: always
+    env_file: .env
+    ports:
+      - "9000:3306"
+    environment:
+      PHP_MEMORY_LIMIT: 1
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORDPRESS_DB_NAME: wordpress
+    secrets:
+      - db_password
 
 networks:
   frontend:
     driver: bridge
     driver_opts:
-        com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
   backend:
     name: hive-network
     external: true
 
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+  server-certificate:
+    file: ./secrets/server.cert
+
 volumes:
-    WordPress:
-    DB:
+  wordpress:
+  db:
