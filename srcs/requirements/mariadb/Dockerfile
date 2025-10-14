@@ -5,6 +5,7 @@ RUN /usr/bin/mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/m
 RUN rc-update add mariadb default
 
 COPY tools/mariadb.sh /tmp/mariadb.sh
-RUN chmod +x /tmp/mariadb.sh
-
-CMD ["/tmp/mariadb.sh"]
+COPY tools/healtcheck.sh /tmp/healthcheck.sh
+COPY ./conf/my.cnf /etc/my.cnf.d/mariadb-server.cnf
+RUN chmod +x /tmp/mariadb.sh /tmp/healthcheck.sh
+ENTRYPOINT ["/tmp/mariadb.sh"]

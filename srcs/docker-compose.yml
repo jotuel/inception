@@ -2,6 +2,7 @@ services:
   nginx:
     build: requirements/nginx/.
     container_name: nginx
+    image: enginex
     networks:
       - frontend
     environment:
@@ -15,10 +16,13 @@ services:
         uid: "103"
         gid: "103"
         mode: 0o440
+      - source: server-key
+        target: server.key
 
   mariadb:
     build: requirements/mariadb/.
     container_name: mariadb
+    image: maria-database
     volumes:
       - db:/var/lib/mysql
     networks:
@@ -27,9 +31,9 @@ services:
       - "3306:9000"
     restart: always
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
+      test: ["CMD", "/tmp/healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 150s
+      interval: 30s
       timeout: 5s
       retries: 3
     environment:
@@ -37,19 +41,20 @@ services:
       MARIADB_DATABASE: wordpress
       MARIADB_USER: wordpress
       MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      SOCKET_PATH: /run/mysql/mysql.sock
     secrets:
       - db_root_password
       - db_password
 
   wordpress:
     build: requirements/wordpress/.
+    image: hivesite
     depends_on:
       mariadb:
         condition: service_healthy
-        restart: true
     container_name: wp
     volumes:
-      - wordpress:/var/www/html/wp-content
+      - wordpress:/var/www/html/
     networks:
       - frontend
       - backend
@@ -73,15 +78,16 @@ networks:
       com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
   backend:
     name: hive-network
-    external: true
 
 secrets:
   db_password:
-    file: ./secrets/db_password.txt
+    file: ./requirements/secrets/db_password.txt
   db_root_password:
-    file: ./secrets/db_root_password.txt
+    file: ./requirements/secrets/db_root_password.txt
   server-certificate:
-    file: ./secrets/server.cert
+    file: ./requirements/secrets/jtuomi.hive.fi.pem
+  server-key:
+    file: ./requirements/secrets/jtuomi.hive.fi-key.pem
 
 volumes:
   wordpress:
