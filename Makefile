@@ -1,4 +1,4 @@
-all: mariadb wordpress nginx
+all:
 	docker compose -f srcs/docker-compose.yml up
 mariadb:
 	docker compose -f srcs/docker-compose.yml up --build mariadb

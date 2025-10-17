@@ -6,18 +6,16 @@ services:
     networks:
       - frontend
     environment:
-      - "DOMAIN=${DOMAIN}"
+      DOMAIN: ${DOMAIN}
     ports:
       - "443:9000"
     restart: always
     secrets:
       - source: server-certificate
         target: server.cert
-        uid: "103"
-        gid: "103"
-        mode: 0o440
       - source: server-key
         target: server.key
+    command: [nginx, -g, "daemon off;"]
 
   mariadb:
     build: requirements/mariadb/.
@@ -92,3 +90,4 @@ secrets:
 volumes:
   wordpress:
   db:
+
