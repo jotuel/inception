@@ -3,8 +3,8 @@ FROM alpine:3
 # Install nginx and openssl to generate a self-signed cert at container start
 RUN apk update && apk upgrade && apk add --no-cache nginx openssl bash
 
-# Copy your nginx server block into conf.d (nginx will load files from here)
-COPY ./conf/nginx.conf.conf /etc/nginx/conf.d/nginx.conf
+# Copy your nginx server block into http.d (nginx's main config includes http.d/*.conf)
+COPY ./conf/nginx.conf.conf /etc/nginx/http.d/nginx.conf
 
 # Create an entrypoint script that will generate a self-signed certificate
 RUN mkdir -p /run/secrets \

@@ -1,21 +1,19 @@
 services:
-  nginx:
-    build: requirements/nginx/.
-    container_name: nginx
-    image: enginex
-    networks:
-      - frontend
-    environment:
-      DOMAIN: ${DOMAIN}
-    ports:
-      - "443:9000"
-    restart: always
-    secrets:
-      - source: server-certificate
-        target: server.cert
-      - source: server-key
-        target: server.key
-    command: [nginx, -g, "daemon off;"]
+    nginx:
+        build: requirements/nginx
+        container_name: nginx
+        image: inception-nginx
+        depends_on:
+            - wordpress
+        networks:
+            - frontend
+        environment:
+            DOMAIN: ${DOMAIN}
+        ports:
+            - "80:80"
+            - "443:443"
+        restart: always
+        # Do not override command/CMD here so the image entrypoint can run and generate certs if needed
 
   mariadb:
     build: requirements/mariadb/.
@@ -25,8 +23,7 @@ services:
       - db:/var/lib/mysql
     networks:
       - backend
-    ports:
-      - "3306:9000"
+
     restart: always
     healthcheck:
       test: ["CMD", "/tmp/healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -44,50 +41,44 @@ services:
       - db_root_password
       - db_password
 
-  wordpress:
-    build: requirements/wordpress/.
-    image: hivesite
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    container_name: wp
-    volumes:
-      - wordpress:/var/www/html/
-    networks:
-      - frontend
-      - backend
-    restart: always
-    env_file: .env
-    ports:
-      - "9000:3306"
-    environment:
-      PHP_MEMORY_LIMIT: 1
-      WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-      WORDPRESS_DB_NAME: wordpress
-    secrets:
-      - db_password
+    wordpress:
+        build: requirements/wordpress
+        image: hivesite
+        depends_on:
+            - mariadb
+        container_name: wp
+        volumes:
+            - wordpress:/var/www/html
+        networks:
+            - frontend
+            - backend
+        restart: always
+        env_file: .env
+        environment:
+            PHP_MEMORY_LIMIT: 256M
+            WORDPRESS_DB_HOST: mariadb:3306
+            WORDPRESS_DB_USER: wordpress
+            WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+            WORDPRESS_DB_NAME: wordpress
+        secrets:
+            - db_password
 
 networks:
-  frontend:
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
-  backend:
-    name: hive-network
+    frontend:
+        driver: bridge
+    backend:
+        name: hive-network
 
 secrets:
-  db_password:
-    file: ./requirements/secrets/db_password.txt
-  db_root_password:
-    file: ./requirements/secrets/db_root_password.txt
-  server-certificate:
-    file: ./requirements/secrets/jtuomi.hive.fi.pem
-  server-key:
-    file: ./requirements/secrets/jtuomi.hive.fi-key.pem
+    db_password:
+        file: ./requirements/secrets/db_password.txt
+    db_root_password:
+        file: ./requirements/secrets/db_root_password.txt
+    server-certificate:
+        file: ./requirements/secrets/jtuomi.hive.fi.pem
+    server-key:
+        file: ./requirements/secrets/jtuomi.hive.fi-key.pem
 
 volumes:
-  wordpress:
-  db:
-
+    wordpress:
+    db:
