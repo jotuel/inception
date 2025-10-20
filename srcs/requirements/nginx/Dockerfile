@@ -8,7 +8,7 @@ COPY ./conf/nginx.conf.conf /etc/nginx/http.d/nginx.conf
 
 # Create an entrypoint script that will generate a self-signed certificate
 RUN mkdir -p /run/secrets \
- && cat > /usr/local/bin/docker-entrypoint.sh <<'EOF'
+	&& cat > /usr/local/bin/docker-entrypoint.sh <<'EOF'
 #!/usr/bin/env sh
 set -e
 
@@ -18,7 +18,6 @@ KEY_FILE="$CERT_DIR/server.key"
 
 # Generate a simple self-signed certificate if missing
 if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
-  echo "Generating self-signed certificate for nginx..."
   mkdir -p "$CERT_DIR"
   openssl req -x509 -nodes -days 365 \
     -subj "/CN=localhost" \
@@ -38,4 +37,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80 443
 
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

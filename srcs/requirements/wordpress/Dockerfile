@@ -1,23 +1,21 @@
 FROM alpine:3
-ENV PHP_MEMORY_LIMIT=1G
+ENV PHP_MEMORY_LIMIT=-1
 
 # Install PHP, php-fpm and tools (no-cache to keep image small)
-RUN apk update && apk upgrade && apk add --no-cache php php-cgi fcgi php-fpm php-phar php-mysqli wget bash
+RUN apk update && apk upgrade && apk add --no-cache php php-cgi fcgi php-fpm php-phar php-mysqli wget bash composer
 
 # Install wp-cli but DO NOT run WP-CLI at build time (defer runtime actions to entrypoint)
 RUN mkdir /opt/wordpress \
- && cd /opt/wordpress \
- && wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
- && chmod +x /opt/wordpress/wp-cli.phar \
- && mv /opt/wordpress/wp-cli.phar /usr/local/bin/wp
+	&& cd /opt/wordpress \
+	&& wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+	&& chmod +x /opt/wordpress/wp-cli.phar \
+	&& mv /opt/wordpress/wp-cli.phar /usr/local/bin/wp
 
 # Create webroot (files will be created at runtime by wp-cli in the entrypoint)
-RUN mkdir -p /var/www/html \
- && chown -R nobody:nobody /var/www/html
+RUN mkdir -p /var/www/html && chown -R nobody:nobody /var/www/html
 
 # Configure php-fpm to listen on TCP 0.0.0.0:9000 so nginx (in another container) can reach it
-RUN mkdir -p /etc/php7/php-fpm.d \
- && cat > /etc/php7/php-fpm.d/zz-docker.conf <<'EOF'
+RUN mkdir -p /etc/php7/php-fpm.d && cat > /etc/php7/php-fpm.d/zz-docker.conf <<'EOF'
 [www]
 ; Listen on all interfaces on port 9000 (TCP)
 listen = 0.0.0.0:9000

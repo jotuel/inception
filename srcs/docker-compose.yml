@@ -1,6 +1,6 @@
 services:
     nginx:
-        build: requirements/nginx
+        build: ./requirements/nginx
         container_name: nginx
         image: inception-nginx
         depends_on:
@@ -13,40 +13,44 @@ services:
             - "80:80"
             - "443:443"
         restart: always
-        # Do not override command/CMD here so the image entrypoint can run and generate certs if needed
 
-  mariadb:
-    build: requirements/mariadb/.
-    container_name: mariadb
-    image: maria-database
-    volumes:
-      - db:/var/lib/mysql
-    networks:
-      - backend
-
-    restart: always
-    healthcheck:
-      test: ["CMD", "/tmp/healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 150s
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    environment:
-      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      MARIADB_DATABASE: wordpress
-      MARIADB_USER: wordpress
-      MARIADB_PASSWORD_FILE: /run/secrets/db_password
-      SOCKET_PATH: /run/mysql/mysql.sock
-    secrets:
-      - db_root_password
-      - db_password
+    mariadb:
+        build: ./requirements/mariadb
+        container_name: mariadb
+        image: maria-database
+        volumes:
+            - db:/var/lib/mysql
+        networks:
+            - backend
+        restart: always
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "/tmp/healthcheck.sh",
+                    "--connect",
+                    "--innodb_initialized",
+                ]
+            start_period: 30s
+            interval: 30s
+            timeout: 5s
+            retries: 5
+        environment:
+            MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+            MARIADB_DATABASE: wordpress
+            MARIADB_USER: wordpress
+            MARIADB_PASSWORD_FILE: /run/secrets/db_password
+            SOCKET_PATH: /run/mysql/mysql.sock
+        secrets:
+            - db_root_password
+            - db_password
 
     wordpress:
-        build: requirements/wordpress
+        build: ./requirements/wordpress
         image: hivesite
+        container_name: wp
         depends_on:
             - mariadb
-        container_name: wp
         volumes:
             - wordpress:/var/www/html
         networks:
@@ -55,7 +59,7 @@ services:
         restart: always
         env_file: .env
         environment:
-            PHP_MEMORY_LIMIT: 256M
+            PHP_MEMORY_LIMIT: 1G
             WORDPRESS_DB_HOST: mariadb:3306
             WORDPRESS_DB_USER: wordpress
             WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password

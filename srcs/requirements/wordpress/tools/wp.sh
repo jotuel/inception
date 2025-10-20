@@ -13,19 +13,20 @@ WP_DB_USER="${WORDPRESS_DB_USER:-wordpress}"
 WP_DB_NAME="${WORDPRESS_DB_NAME:-wordpress}"
 WP_ADMIN_USER="${WP_ADMIN_USER:-admin}"
 WP_ADMIN_PASS="${WP_ADMIN_PASS:-changeme}"
-WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL:-admin@localhost}"
-WP_URL="${DOMAIN:-http://localhost}"
+WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL:-admin@jtuomi.hive.fi}"
+WP_URL="${DOMAIN:-https://jtuomi.hive.fi}"
+PHP_MEMORY_LIMIT="${PHP_MEMORY_LIMIT:-1}"
 
 # Wait until the database is reachable via wp-cli
-echo "Waiting for database at ${WP_DB_HOST}..."
-until wp db check --path=/var/www/html --allow-root > /dev/null 2>&1; do
-	sleep 2
-done
+#echo "Waiting for database at ${WP_DB_HOST}..."
+#until wp db check --path=/var/www/html --allow-root > /dev/null 2>&1; do
+#	sleep 2
+#done
 
 # Ensure WordPress core files exist
 if [ ! -f /var/www/html/wp-includes/version.php ]; then
 	echo "Downloading WordPress core..."
-	wp core download --path=/var/www/html --allow-root
+	/usr/bin/php -dmemory_limit=-1 /usr/local/bin/wp core download --path=/var/www/html --allow-root
 fi
 
 # Create wp-config.php if missing
@@ -41,6 +42,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	  --allow-root
 fi
 
+
 # Run the installer if WordPress isn't installed
 if ! wp core is-installed --path=/var/www/html --allow-root 2>/dev/null; then
 	echo "Installing WordPress..."
@@ -55,8 +57,7 @@ if ! wp core is-installed --path=/var/www/html --allow-root 2>/dev/null; then
 	  --allow-root
 fi
 
-# Ensure correct ownership (best-effort)
 chown -R nobody:nobody /var/www/html || true
 
 # Start php-fpm in the foreground
-exec php-fpm -F
+exec php-fpm83 -F
