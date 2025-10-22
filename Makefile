@@ -1,5 +1,5 @@
 all:
-	docker compose -f srcs/docker-compose.yml up
+	docker compose -f srcs/docker-compose.yml up -d --build
 mariadb:
 	docker compose -f srcs/docker-compose.yml up --build mariadb
 wordpress:
@@ -10,7 +10,7 @@ nginx:
 re: clean all
 
 clean:
-	docker-compose -f srcs/docker-compose.yml down -v --remove-orphans
+	docker compose -f srcs/docker-compose.yml down -v --remove-orphans
 	docker builder prune -af
 	docker image prune -af
 	docker volume prune -af
