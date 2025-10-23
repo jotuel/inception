@@ -1,6 +1,6 @@
 all:
-	mkdir -p /home/jwnz/data/mariadb -m 777
-	mkdir -p /home/jwnz/data/wordpress -m 777
+	mkdir -p /home/jtuomi/data/mariadb -m 777
+	mkdir -p /home/jtuomi/data/wordpress -m 777
 	docker compose -f srcs/docker-compose.yml up -d --build
 mariadb:
 	docker compose -f srcs/docker-compose.yml up --build mariadb

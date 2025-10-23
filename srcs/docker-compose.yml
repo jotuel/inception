@@ -70,10 +70,10 @@ volumes:
   wordpress:
     driver_opts:
       type: none
-      device: /home/jwnz/data/wordpress
+      device: /home/jtuomi/data/wordpress
       o: bind
   db:
     driver_opts:
       type: none
-      device: /home/jwnz/data/mariadb
+      device: /home/jtuomi/data/mariadb
       o: bind
