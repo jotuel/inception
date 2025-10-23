@@ -14,6 +14,6 @@ if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
     -out "$CERT_FILE"
 fi
 
-mkdir -p /var/log/nginx /var/www/html
+mkdir -p /var/log/nginx
 
 exec nginx -g 'daemon off;'
