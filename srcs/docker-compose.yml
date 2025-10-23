@@ -24,10 +24,10 @@ services:
       - backend
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      MARIADB_DATABASE: wordpress
+      MARIADB_ROOT_PASSWORD: /run/secrets/db_root_password
+      MARIADB_DATABASE: wp
       MARIADB_USER: wordpress
-      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_PASSWORD: /run/secrets/db_password
       SOCKET_PATH: /run/mysql/mysql.sock
     secrets:
       - db_root_password
@@ -50,14 +50,17 @@ services:
       PHP_MEMORY_LIMIT: 1G
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_PASSWORD: /run/secrets/db_password
+      WORDPRESS_DB_NAME: wp
     secrets:
       - db_password
 
 networks:
   frontend:
+    driver: bridge
   backend:
+    driver: bridge
+    internal: true
 
 secrets:
   db_password:
