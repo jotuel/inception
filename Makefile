@@ -1,4 +1,6 @@
 all:
+	mkdir -p /home/jwnz/data/mariadb -m 777
+	mkdir -p /home/jwnz/data/wordpress -m 777
 	docker compose -f srcs/docker-compose.yml up -d --build
 mariadb:
 	docker compose -f srcs/docker-compose.yml up --build mariadb
@@ -14,5 +16,7 @@ clean:
 	docker builder prune -af
 	docker image prune -af
 	docker volume prune -af
+	rm -rf /home/jwnz/data/mariadb
+	rm -rf /home/jwnz/data/wordpress
 
 .PHONY: all, build, re, clean

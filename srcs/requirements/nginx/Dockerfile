@@ -6,6 +6,6 @@ COPY ./conf/nginx.conf.conf /etc/nginx/http.d/nginx.conf
 COPY tools/nginx.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80 443
+EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

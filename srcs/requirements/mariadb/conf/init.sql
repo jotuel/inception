@@ -1,7 +1,6 @@
 CREATE DATABASE IF NOT EXISTS wp;
 CREATE USER IF NOT EXISTS 'wordpress'@'%' IDENTIFIED BY 'world';
-GRANT ALL PRIVILEGES ON `wp`.* TO 'wordpress'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON wp.* TO 'wordpress'@'%';
 FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'hello';
-ALTER USER 'root'@'%' IDENTIFIED BY 'hello';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
 FLUSH PRIVILEGES;
