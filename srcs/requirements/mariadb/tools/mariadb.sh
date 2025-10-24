@@ -9,7 +9,9 @@ fi
 
 ADMIN="root"
 USER="wordpress"
+FLAG=/tmp/flag
 
+if [ -f /tmp/flag ]; then exit 0
 service mariadb start
 mariadb -e "CREATE DATABASE IF NOT EXISTS ${USER};"
 mariadb -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${USER}';"
