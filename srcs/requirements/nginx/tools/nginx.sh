@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -e
+set -eu
 
 CERT_DIR="/run/secrets"
 CERT_FILE="$CERT_DIR/server.cert"

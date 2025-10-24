@@ -16,4 +16,4 @@ COPY tools/mariadb.sh /usr/local/bin/mariadb.sh
 
 RUN chmod +x /usr/local/bin/mariadb.sh
 
-ENTRYPOINT ["mariadbd", "--console"]
+ENTRYPOINT ["/usr/local/bin/mariadb.sh"]
