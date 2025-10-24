@@ -15,6 +15,6 @@ COPY tools/healtcheck.sh /tmp/healthcheck.sh
 
 RUN chmod +x /usr/local/bin/mariadb.sh /tmp/healthcheck.sh
 
-EXPOSE 3306
+#EXPOSE 3306
 
 ENTRYPOINT ["mariadbd", "--console"]
