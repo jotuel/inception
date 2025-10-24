@@ -1,83 +1,60 @@
 services:
   nginx:
-    build: requirements/nginx/.
+    build: ./requirements/nginx
     container_name: nginx
-    image: enginex
+    image: inception-nginx
+    depends_on:
+      - wordpress
     networks:
       - frontend
     environment:
-      - "DOMAIN=${DOMAIN}"
+      DOMAIN: ${DOMAIN}
     ports:
-      - "443:9000"
+      - "80:80"
+      - "443:443"
     restart: always
-    secrets:
-      - source: server-certificate
-        target: server.cert
-        uid: "103"
-        gid: "103"
-        mode: 0o440
-      - source: server-key
-        target: server.key
 
   mariadb:
-    build: requirements/mariadb/.
+    build: ./requirements/mariadb
     container_name: mariadb
     image: maria-database
     volumes:
       - db:/var/lib/mysql
     networks:
       - backend
-    ports:
-      - "3306:9000"
     restart: always
-    healthcheck:
-      test: ["CMD", "/tmp/healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 150s
-      interval: 30s
-      timeout: 5s
-      retries: 3
+    env_file: .env
     environment:
-      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      MARIADB_DATABASE: wordpress
-      MARIADB_USER: wordpress
-      MARIADB_PASSWORD_FILE: /run/secrets/db_password
-      SOCKET_PATH: /run/mysql/mysql.sock
+      MARIADB_ROOT_PASSWORD: /run/secrets/db_root_password
+      MARIADB_PASSWORD: /run/secrets/db_password
     secrets:
       - db_root_password
       - db_password
 
   wordpress:
-    build: requirements/wordpress/.
+    build: ./requirements/wordpress
     image: hivesite
-    depends_on:
-      mariadb:
-        condition: service_healthy
     container_name: wp
+    depends_on:
+      - mariadb
     volumes:
-      - wordpress:/var/www/html/
+      - wordpress:/var/www/html
     networks:
       - frontend
       - backend
     restart: always
     env_file: .env
-    ports:
-      - "9000:3306"
     environment:
-      PHP_MEMORY_LIMIT: 1
-      WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_PASSWORD: /run/secrets/db_password
     secrets:
       - db_password
 
 networks:
   frontend:
     driver: bridge
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
   backend:
-    name: hive-network
+    driver: bridge
+    internal: true
 
 secrets:
   db_password:
@@ -91,4 +68,12 @@ secrets:
 
 volumes:
   wordpress:
+    driver_opts:
+      type: none
+      device: /home/jtuomi/data/wordpress
+      o: bind
   db:
+    driver_opts:
+      type: none
+      device: /home/jtuomi/data/mariadb
+      o: bind

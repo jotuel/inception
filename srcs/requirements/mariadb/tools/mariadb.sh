@@ -1,22 +1,19 @@
 #!/usr/bin/env sh
 
-# Check if USER is set and non-empty
-if [ -n "$USER" ]; then
-    USERNAME="$USER"
+set -eu
+DB_NAME=${MARIADB_DATABASE:-wordpress}
+DB_USER=${MARIADB_USER:-wordpress}
+
+if [ -n "${MARIADB_ROOT_PASSWORD_FILE:-}" ] && [ -f "${MARIADB_ROOT_PASSWORD_FILE}" ]; then
+  ROOT_PASS=$(cat "${MARIADB_ROOT_PASSWORD_FILE}")
 else
-    USERNAME="DEFAULTUSER"
+  ROOT_PASS=${MARIADB_ROOT_PASSWORD:-}
 fi
 
-ADMIN="root"
-USER="wordpress"
-FLAG=/tmp/flag
+if [ -n "${MARIADB_PASSWORD_FILE:-}" ] && [ -f "${MARIADB_PASSWORD_FILE}" ]; then
+  DB_PASS=$(cat "${MARIADB_PASSWORD_FILE}")
+else
+  DB_PASS=${MARIADB_PASSWORD:-}
+fi
 
-if [ -f /tmp/flag ]; then exit 0
-service mariadb start
-mariadb -e "CREATE DATABASE IF NOT EXISTS ${USER};"
-mariadb -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${USER}';"
-mariadb -e "GRANT ALL PRIVILEGES ON ${USER}.* TO '${USERNAME}'@'%';"
-mariadb -e "CREATE USER '${ADMIN}'@'%' IDENTIFIED BY '${USER}';"
-mariadb -e "GRANT ALL PRIVILEGES ON ${USER}.* TO '${ADMIN}'@'%';"
-mariadb -e "FLUSH PRIVILEGES;"
-exec mariadbd --user=root
+exec mariadbd --console
