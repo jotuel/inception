@@ -43,6 +43,7 @@ services:
     env_file: .env
     environment:
       WORDPRESS_DB_PASSWORD: /run/secrets/db_password
+      WORDPRESS_ADMIN_PASSWORD: /run/secrets/wp_admin
     secrets:
       - db_password
 
@@ -54,6 +55,8 @@ networks:
     internal: true
 
 secrets:
+  wp_admin:
+    file: ./requirements/secrets/wp_admin.txt
   db_password:
     file: ./requirements/secrets/db_password.txt
   db_root_password:
