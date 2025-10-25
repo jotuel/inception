@@ -13,5 +13,4 @@ COPY conf/fpm.conf /etc/php83/php-fpm.d/zz-docker.conf
 COPY tools/wp.sh /usr/local/bin/wordpress.sh
 RUN chmod +x /usr/local/bin/wordpress.sh
 
-#EXPOSE 9000
 ENTRYPOINT ["/usr/local/bin/wordpress.sh"]

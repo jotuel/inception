@@ -10,7 +10,7 @@ wp config create \
   --path=/var/www/html \
   --dbname=wp \
   --dbuser=wordpress \
-  --dbpass=$(cat "${WORDPRESS_ADMIN_PASSWORD}") \
+  --dbpass=$(cat "${WORDPRESS_DB_PASSWORD}") \
   --dbhost=mariadb \
   --skip-check \
   --force
@@ -26,7 +26,7 @@ if ! wp core is-installed --path=/var/www/html --allow-root 2>/dev/null; then
 	  --url=${DOMAIN} \
 	  --title=${TITLE} \
 	  --admin_user=admin \
-	  --admin_password=$(cat "${WP_ADMIN_PASS}") \
+	  --admin_password=$(cat "${WORDPRESS_ADMIN_PASSWORD}") \
 	  --admin_email=jtuomi@student.hive.fi \
 	  --skip-email \
 	  --allow-root

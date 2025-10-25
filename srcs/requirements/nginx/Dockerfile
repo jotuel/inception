@@ -1,5 +1,4 @@
 FROM alpine:3
-
 RUN apk update && apk upgrade && apk add --no-cache nginx openssl bash
 
 COPY ./conf/nginx.conf.conf /etc/nginx/http.d/nginx.conf
