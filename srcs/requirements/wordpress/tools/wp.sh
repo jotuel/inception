@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -eu
+source $CREDENTIALS
 
 if [ ! -f /var/www/html/wp-includes/version.php ]; then
 	echo "Downloading WordPress core..."

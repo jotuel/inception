@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM alpine:3.21
 RUN apk update && apk upgrade && apk add --no-cache php php-cgi fcgi php-fpm php-phar php-mysqli wget bash composer mariadb-client
 
 RUN mkdir /opt/wordpress \

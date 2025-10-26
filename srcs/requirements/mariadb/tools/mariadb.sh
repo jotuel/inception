@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+source $CREDENTIALS
+
 DB_NAME=${MARIADB_DATABASE:-wordpress}
 DB_USER=${WORDPRESS_DB_USER:-wordpress}
 

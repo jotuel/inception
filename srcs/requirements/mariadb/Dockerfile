@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM alpine:3.21
 RUN apk update && apk upgrade && apk add --no-cache openrc mariadb mariadb-client mariadb-server-utils gettext
 
 COPY ./conf/my.cnf /etc/my.cnf.d/mariadb-server.cnf
