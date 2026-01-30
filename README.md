@@ -4,7 +4,7 @@ You'll need root access (administrator priviliges) on the system. Mostly to use 
 
 ## Usage
 
-You'll need to add correct secrets before starting.
+You'll need to add correct secrets before starting. Those can be found from `/srcs/docker-compose.yml`.
 
 Calling `make` in root folder builds and starts Docker container.
 
